@@ -1,3 +1,5 @@
+import { ValidationResult } from "./validationResult";
+
 export class ErrorDetails {
 
     private constructor(
@@ -7,7 +9,7 @@ export class ErrorDetails {
     ) { }
 
     public static failure = (code: string, description: string) =>
-        new ErrorDetails(code, description, ErrorType.failure);
+        new ErrorDetails(code, description, ErrorType.failure,);
 
     public static validation = (code: string, description: string) =>
         new ErrorDetails(code, description, ErrorType.validation);
@@ -20,8 +22,8 @@ export class ErrorDetails {
 
     public static externalServiceFailure = (code: string, description: string) =>
         new ErrorDetails(code, description, ErrorType.externalServiceFailure);
-
 }
+
 
 export enum ErrorType {
     failure = 0,
