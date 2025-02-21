@@ -1,6 +1,8 @@
 import { Result, success, failure } from "../../domain/abstractions/result";
 import { PasswordPolicy } from "../../domain/user/passwordPolicy";
+import { User } from "../../domain/user/user";
 import { UserRepository } from "../../domain/user/userRepository";
+import { HashingServiceFactory } from "../absractions/HashingServiceFactory";
 import { RegisterUserCommand } from "./registerUserCommand";
 import { RegisterUserErrors } from "./registerUserErrors";
 import { EmailValidator } from "./validators/emailValidator";
@@ -10,26 +12,47 @@ export class RegisterUserCommandHandler {
 
     constructor(
         private userRepository: UserRepository,
-        private passwordPolicy: PasswordPolicy
+        private passwordPolicy: PasswordPolicy,
+        private hashingServiceFactory: HashingServiceFactory
     ) { }
 
     public async handle(command: RegisterUserCommand)
         : Promise<Result<void>> {
 
-        const commndValidationResult = await this.validateCommand(command);
+        const commandValidationResult = await this.validateCommand(command);
 
-        if (commndValidationResult.isSuccess === false) {
-            return commndValidationResult;
+        if (commandValidationResult.isSuccess === false) {
+            return commandValidationResult;
         }
 
         const userWithTheSameEmailResult = await this.userRepository
-            .getUserByEmailAsync(command.email);
+            .getByEmailAsync(command.email);
 
         if (userWithTheSameEmailResult.isSuccess) {
             return failure(RegisterUserErrors.emailAlreadyUsed());
         }
 
+        const passwordHash = this.hashPassword(command.password);
+
+        const user = new User(
+            "",
+            command.email,
+            passwordHash);
+
+        const insertUserResult = await this.userRepository.insertAsync(user);
+
+        if (insertUserResult.isSuccess === false) {
+            return insertUserResult;
+        }
+
         return success();
+    }
+
+    private hashPassword(password: string): string {
+        const hashingService = this.hashingServiceFactory
+            .getHashingService();
+
+        return hashingService.hash(password);
     }
 
     private async validateCommand(command: RegisterUserCommand)
