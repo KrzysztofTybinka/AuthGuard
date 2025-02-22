@@ -1,8 +1,9 @@
+import { ErrorDetails } from "../../domain/abstractions/errorDetails";
 import { Result, success, failure } from "../../domain/abstractions/result";
 import { PasswordPolicy } from "../../domain/user/passwordPolicy";
 import { User } from "../../domain/user/user";
 import { UserRepository } from "../../domain/user/userRepository";
-import { HashingServiceFactory } from "../absractions/HashingServiceFactory";
+import { HashingServiceFactory } from "../absractions/hashingServiceFactory";
 import { RegisterUserCommand } from "./registerUserCommand";
 import { RegisterUserErrors } from "./registerUserErrors";
 import { EmailValidator } from "./validators/emailValidator";
@@ -19,23 +20,16 @@ export class RegisterUserCommandHandler {
     public async handle(command: RegisterUserCommand)
         : Promise<Result<void>> {
 
-        const commandValidationResult = await this.validateCommand(command);
+        const canInserUserResult = await this.canInsertUser(command);
 
-        if (commandValidationResult.isSuccess === false) {
-            return commandValidationResult;
-        }
-
-        const userWithTheSameEmailResult = await this.userRepository
-            .getByEmailAsync(command.email);
-
-        if (userWithTheSameEmailResult.isSuccess) {
-            return failure(RegisterUserErrors.emailAlreadyUsed());
+        if (canInserUserResult.isSuccess === false) {
+            return canInserUserResult;
         }
 
         const passwordHash = this.hashPassword(command.password);
 
         const user = new User(
-            "",
+            0,
             command.email,
             passwordHash);
 
@@ -55,7 +49,7 @@ export class RegisterUserCommandHandler {
         return hashingService.hash(password);
     }
 
-    private async validateCommand(command: RegisterUserCommand)
+    private async canInsertUser(command: RegisterUserCommand)
         : Promise<Result<void>> {
 
         const emailValidator = new EmailValidator();
@@ -76,7 +70,13 @@ export class RegisterUserCommandHandler {
                     this.passwordPolicy.toString()));
         }
 
+        const userWithTheSameEmailResult = await this.userRepository
+            .getByEmailAsync(command.email);
+
+        if (userWithTheSameEmailResult.isSuccess) {
+            return failure(RegisterUserErrors.emailAlreadyUsed());
+        }
+
         return success();
     }
-
 }

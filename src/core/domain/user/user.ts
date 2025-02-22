@@ -2,7 +2,7 @@
 export class User {
 
     public constructor(
-        public id: string,
+        public id: number,
         public email: string,
         public passwordHash: string
     ) { }

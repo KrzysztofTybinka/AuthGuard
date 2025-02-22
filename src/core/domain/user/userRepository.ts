@@ -1,4 +1,4 @@
-import { Result } from "../abstractions/genericResult";
+import { Result } from "../abstractions/result";
 import { User } from "./user";
 
 export interface UserRepository {

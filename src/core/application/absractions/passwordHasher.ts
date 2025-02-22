@@ -1,3 +1,4 @@
 export interface PasswordHasher {
-    hash(password: string): string;
+    hashAsync(password: string): Promise<string>;
+    compareAsync(password: string, hashedPassword: string): Promise<boolean>;
 }

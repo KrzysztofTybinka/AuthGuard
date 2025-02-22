@@ -10,7 +10,7 @@ export class RegisterUserErrors {
     };
 
     public static emailAlreadyUsed(): ErrorDetails {
-        return ErrorDetails.failure(
+        return ErrorDetails.conflict(
             "RegisterUserErrors.EmailAlreadyUsed",
             "Email is already in use."
         )
