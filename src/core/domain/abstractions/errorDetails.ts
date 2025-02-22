@@ -1,4 +1,3 @@
-import { ValidationResult } from "./validationResult";
 
 export class ErrorDetails {
 

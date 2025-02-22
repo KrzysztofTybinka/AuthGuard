@@ -24,12 +24,25 @@ export class UserRepositoryImpl implements UserRepository {
             return success(user);
 
         } catch (error) {
-            return failure(UserRepositoryErrors.userNotFound());
+            return failure(UserRepositoryErrors.unexpectedEror());
         }
     }
 
-    insertAsync(user: User): Promise<Result<void>> {
-        throw new Error("Method not implemented.");
+    public async insertAsync(user: User): Promise<Result<void>> {
+        try {
+            await pool.query(
+                `INSERT INTO users (email, password_hash, created_at)
+                VALUES ($1, $2, $3)`,
+                [user.email, user.passwordHash, new Date()]
+            );
+
+            return success();
+        } catch (error: any) {
+            if (error.code === "23505") {
+                return failure(UserRepositoryErrors.duplicateEmail());
+            }
+            return failure(UserRepositoryErrors.unexpectedEror());
+        }
     }
 
 }

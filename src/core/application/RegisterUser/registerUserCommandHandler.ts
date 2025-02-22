@@ -26,7 +26,7 @@ export class RegisterUserCommandHandler {
             return canInserUserResult;
         }
 
-        const passwordHash = this.hashPassword(command.password);
+        const passwordHash = await this.hashPassword(command.password);
 
         const user = new User(
             0,
@@ -42,11 +42,11 @@ export class RegisterUserCommandHandler {
         return success();
     }
 
-    private hashPassword(password: string): string {
+    private async hashPassword(password: string): Promise<string> {
         const hashingService = this.hashingServiceFactory
             .getHashingService();
 
-        return hashingService.hash(password);
+        return await hashingService.hashAsync(password);
     }
 
     private async canInsertUser(command: RegisterUserCommand)

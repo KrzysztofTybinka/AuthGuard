@@ -9,6 +9,8 @@ services:
       - PGUSER=postgres
       - PGPASSWORD=postgres
       - PGDATABASE=mydatabase
+      - HASHING_ALGORITHM=${HASHING_ALGORITHM}
+      - SALT_ROUNDS=${SALT_ROUNDS}
       - PGPORT=5432
     depends_on:
       - db
