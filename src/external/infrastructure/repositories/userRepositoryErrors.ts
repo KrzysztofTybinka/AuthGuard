@@ -17,7 +17,7 @@ export class UserRepositoryErrors {
     };
 
     public static duplicateEmail(): ErrorDetails {
-        return ErrorDetails.failure(
+        return ErrorDetails.conflict(
             "UserRepositoryErrors.DuplicateEmail",
             "User with provided email already exsists."
         )
